@@ -1,0 +1,41 @@
+data,description
+001.npy,Unilateral; 1 hematoma; left side; Pons; intraparenchymal hemorrhage
+002.npy,Unilateral; 1 hematoma; left side; basal ganglia; intraparenchymal hemorrhage
+003.npy,Unilateral; 1 hematoma; left side; occipital lobe; subarachnoid hemorrhage
+004.npy,"Bilateralt; 3 hematoma; one in left side,  temporal lobe, intraparenchymal hemorrhage ; one in right side, temporal lobe, subdural hemorrhage; one in right side,occipital lobe, subdural hemorrhage "
+005.npy,Unilateral; 1 hematoma; right side; cerebellum intraparenchymal hemorrhage
+006.npy,"Unilateral; 2 hematoma;  one in left side, basal ganglia, intraparenchymal hemorrhage ; one in left side, ventricle, intraventricular hemorrhage "
+007.npy,"Unilateral; 3 hematoma; one in right side, parietal lobe & occipital lobe, subdural hemorrhage; one in right side ,frontal lobe, subdural hemorrhage; one in right siad, occipital lobe, subarachnoid hemorrhage"
+008.npy,Unilateral; 1 hematoma; right side; basal ganglia; intraparenchymal hemorrhage
+009.npy,Unilateral; 1 hematoma; right side; basal ganglia; intraparenchymal hemorrhage
+010.npy,Unilateral; 1 hematoma; right side;  occipital lobe; intraparenchymal hemorrhage
+011.npy,Unilateral; 1 hematoma; right side; basal ganglia; intraparenchymal hemorrhage
+012.npy,Unilateral; 1 hematoma; right side;  occipital lobe; intraparenchymal hemorrhage
+013.npy,"Unilateral; 2 hematoma; right side; one in basal ganglia, intraparenchymal hemorrhage ; one in ventricle, intraventricular hemorrhage "
+015.npy,"Bilateralt; 1 hematoma; frontal lobe & temporal lobe,  subarachnoid hemorrhage"
+016.npy,Unilateral; 1 hematoma; right side; basal ganglia; intraparenchymal hemorrhage 
+017.npy,Unilateral; 1 hematoma; left side;  occipital lobe; intraparenchymal hemorrhage 
+019.npy,Unilateral; 1 hematoma; left side; basal ganglia; intraparenchymal hemorrhage 
+021.npy,"Unilateral; 1 hematoma; one in left side, midbrain & pons, intraparenchymal hemorrhage; one in left side,  Fourth ventricle, intraventricular hemorrhage "
+022.npy,Unilateral; 1 hematoma; right side; basal ganglia; intraparenchymal hemorrhage 
+023.npy,"Bilateralt; 4 hematoma; one in left side, basal ganglia, intraparenchymal hemorrhage; one in left side,  ventricle, intraventricular hemorrhage; one in right side,  ventricle, intraventricular hemorrhage; one in left side,  Fourth ventricle, intraventricular hemorrhage "
+024.npy,"Unilateral; 1 hematoma; left side; frontal lobe & temporal lobe, subdural hemorrhage"
+025.npy,Unilateral; 1 hematoma; right side; temporal lobe; intraparenchymal hemorrhage 
+028.npy,"Unilateral; 3 hematoma; one in right side, frontal lobe, intraparenchymal hemorrhage; one in right side, temporal lobe, intraparenchymal hemorrhage; one in right side, parietal lobe, intraparenchymal hemorrhage;  "
+029.npy,Unilateral; 1 hematoma; left side;  basal ganglia; intraparenchymal hemorrhage 
+030.npy,Unilateral; 1 hematoma; left side;  basal ganglia; intraparenchymal hemorrhage 
+032.npy,Unilateral; 1 hematoma; right side; cerebellum; intraparenchymal hemorrhage 
+034.npy,"Bilateralt; 3 hematoma; one in left side,  ventricle, intraventricular hemorrhage; one in right side,  frontal lobe, intraparenchymal hemorrhage; one in right side,  pons, intraparenchymal hemorrhage "
+035.npy,"Bilateralt; 2 hematoma; one in left side,  parietal lobe,  intraparenchymal hemorrhage; one in right side,  occipital lobe,  intraparenchymal hemorrhage"
+036.npy,"Unilateral; 3 hematoma;  one in left side, basal ganglia, intraparenchymal hemorrhage ; one in left side, midbrain & pons, intraparenchymal hemorrhage; one in left side, ventricle, intraventricular hemorrhage"
+037.npy,"Unilateral; 2 hematoma; one in right side, occipital lobe, intraparenchymal hemorrhage ; one in right side, occipital lobe, intraventricular hemorrhage "
+038.npy,Unilateral; 1 hematoma; left side;  occipital lobe; intraparenchymal hemorrhage 
+039.npy,"Unilateral; 3 hematoma;  one in left side, basal ganglia, intraparenchymal hemorrhage ; one in left side, midbrain, intraparenchymal hemorrhage; one in left side, ventricle, intraventricular hemorrhage"
+041.npy,"Unilateral; 2 hematoma; one in left side, parietal lobe, intraparenchymal hemorrhage ; one in left side, occipital lobe, intraventricular hemorrhage "
+042.npy,Unilateral; 1 hematoma; right side; temporal lobe; intraparenchymal hemorrhage 
+043.npy,"Bilateralt; 5 hematoma; one in left side, parietal lobe, intraparenchymal hemorrhage;  one in right side, basal ganglia, intraparenchymal hemorrhage; one in left side,  ventricle, intraventricular hemorrhage; one in right side,  ventricle, intraventricular hemorrhage; one in left side,  Fourth ventricle, intraventricular hemorrhage "
+044.npy,Unilateral; 1 hematoma; right side; basal ganglia; intraparenchymal hemorrhage 
+045.npy,Unilateral; 1 hematoma; right side; temporal lobe; intraparenchymal hemorrhage 
+047.npy,"Bilateralt; 4 hematoma; one in left side, occipital lobe, intraparenchymal hemorrhage;  one in right side, occipital lobe, intraparenchymal hemorrhage; one in left side,  ventricle, intraventricular hemorrhage; one in left side,  temporal lobe, intraparenchymal hemorrhage;"
+048.npy,Unilateral; 1 hematoma; right side; basal ganglia; intraparenchymal hemorrhage 
+050.npy,Unilateral; 1 hematoma; left side;  frontal lobe; subdural hemorrhage
