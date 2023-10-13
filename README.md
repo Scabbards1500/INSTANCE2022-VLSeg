@@ -43,8 +43,6 @@ The following dependencies are needed:
 * more detail and trained model can follow my WeChat Public article.
 
 ## Contact
-* https://github.com/junqiangchen
-* email: 1207173174@qq.com
-* Contact: junqiangChen
-* WeChat Number: 1207173174
-* WeChat Public number: 最新医学影像技术
+* https://github.com/Scabbards1500
+* email: scaaabbards@gmail.com
+
