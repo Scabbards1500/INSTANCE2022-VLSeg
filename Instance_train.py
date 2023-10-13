@@ -4,6 +4,7 @@ import os
 from model import *
 import numpy as np
 
+
 # Use CUDA
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
