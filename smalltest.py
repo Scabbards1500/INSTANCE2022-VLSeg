@@ -1,23 +1,25 @@
 import numpy as np
 
-def positional_encoding(d_model, max_len):
-    position = np.arange(0, max_len)[:, np.newaxis]
-    div_term = np.exp(np.arange(0, d_model, 2) * -(np.log(10000.0) / d_model))
-    pos_enc = np.zeros((max_len, d_model))
-    pos_enc[:, 0::2] = np.sin(position * div_term)
-    pos_enc[:, 1::2] = np.cos(position * div_term)
-    return pos_enc
+# 输入数据的维度
+sequence_length = 64  # 序列长度
+input_dimension = 128  # 输入维度
 
-# 输入张量的形状
-input_shape = (16, 32, 320, 256)
+# 创建位置编码矩阵
+def create_positional_embedding(sequence_length, input_dimension):
+    position = np.arange(0, sequence_length)[:, np.newaxis]
+    div_term = np.exp(np.arange(0, input_dimension, 2) * -(np.log(10000.0) / input_dimension))
+    positional_embedding = np.zeros((sequence_length, input_dimension))
 
-# 获取位置编码
-max_len = input_shape[2]
-d_model = input_shape[-1]
-position_embedding = positional_encoding(d_model, max_len)
+    # 奇数索引使用正弦函数编码
+    positional_embedding[:, 0::2] = np.sin(position * div_term)
 
-# 在输入张量的最后两维上添加位置嵌入
-embedded_tensor = np.zeros(input_shape)
-embedded_tensor[:, :, :, :, :d_model] += position_embedding
+    # 偶数索引使用余弦函数编码
+    positional_embedding[:, 1::2] = np.cos(position * div_term)
 
-# 现在，embedded_tensor 包含了位置嵌入信息，其形状与输入张量相同。
+    return positional_embedding
+
+# 创建一个示例位置编码
+positional_embedding = create_positional_embedding(sequence_length, input_dimension)
+
+print(positional_embedding.shape)
+print(positional_embedding)

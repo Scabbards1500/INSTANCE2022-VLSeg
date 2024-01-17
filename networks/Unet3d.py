@@ -18,11 +18,11 @@ class UNet3d(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         # self.text_size = text_size
-        self.text_module4 = nn.Conv1d(in_channels=768, out_channels=512, kernel_size=3, padding=1)
-        self.text_module3 = nn.Conv1d(in_channels=512, out_channels=256, kernel_size=3, padding=1)
-        self.text_module2 = nn.Conv1d(in_channels=256, out_channels=128, kernel_size=3, padding=1)
-        self.text_module1 = nn.Conv1d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
-        self.text_module0 = nn.Conv1d(in_channels=64, out_channels=32, kernel_size=3, padding=1)
+        self.text_module4 = nn.Conv1d(in_channels=768, out_channels=256, kernel_size=3, padding=1)
+        self.text_module3 = nn.Conv1d(in_channels=256, out_channels=128, kernel_size=3, padding=1)
+        self.text_module2 = nn.Conv1d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
+        self.text_module1 = nn.Conv1d(in_channels=64, out_channels=32, kernel_size=3, padding=1)
+        self.text_module0 = nn.Conv1d(in_channels=32, out_channels=16, kernel_size=3, padding=1)
 
         self.encoder1 = UNet3d._block(self.in_channels, self.features, name="enc1")
         self.pool1 = nn.MaxPool3d(kernel_size=2, stride=2)
@@ -33,10 +33,10 @@ class UNet3d(nn.Module):
         self.encoder4 = UNet3d._block(self.features * 4, self.features * 8, name="enc4")
         self.pool4 = nn.MaxPool3d(kernel_size=2, stride=2)
 
-        self.fusion1 = FusLanguageVision(self.features, self.features)
-        self.fusion2 = FusLanguageVision(self.features * 2, self.features * 2)
-        self.fusion3 = FusLanguageVision(self.features * 4, self.features * 4)
-        self.fusion4 = FusLanguageVision(self.features * 8, self.features * 8)
+        self.fusion1 = FusLanguageVision(self.features, self.features, 24, self.features)
+        self.fusion2 = FusLanguageVision(self.features * 2, self.features * 2,24,self.features * 2)
+        self.fusion3 = FusLanguageVision(self.features * 4, self.features * 4,24,self.features * 4)
+        self.fusion4 = FusLanguageVision(self.features * 8, self.features * 8, 24,self.features * 8)
 
 
         self.bottleneck = UNet3d._block(self.features * 8, self.features * 16, name="bottleneck")
@@ -58,22 +58,24 @@ class UNet3d(nn.Module):
         # tmp = x
         # t = tmp[1]
         # x = tmp[0]
+        print("x")
         print(x.shape)
 
         text_output = self.text_encoder(text['input_ids'], text['attention_mask'])
-        text_embeds, text_project = text_output['feature'], text_output['project'] #[1, 24, 768], [1,512]
+        text_embeds, text_project = text_output['feature'], text_output['project']  # [1, 24, 768], [1,256]
 
-        txt_pre = self.text_module4(text_embeds[-1].transpose(1, 2)).transpose(1, 2) # [1, 24, 512] 其中1是batch_size，24是句子长度，512是词向量维度
-        txt4 = self.text_module3(txt_pre.transpose(1, 2)).transpose(1, 2) #[1, 24, 256]
-        txt3 = self.text_module2(txt4.transpose(1, 2)).transpose(1, 2) #[1, 24, 128]
-        txt2 = self.text_module1(txt3.transpose(1, 2)).transpose(1, 2) #[1, 24, 64]
-        txt1 = self.text_module0(txt2.transpose(1, 2)).transpose(1, 2) #[1, 24, 32]
+        txt_pre = self.text_module4(text_embeds[-1].transpose(1, 2)).transpose(1, 2)  # [1, 24, 256] 其中1是batch_size，24是句子长度，512是词向量维度
+        txt4 = self.text_module3(txt_pre.transpose(1, 2)).transpose(1, 2)  # [1, 24, 128]
+        txt3 = self.text_module2(txt4.transpose(1, 2)).transpose(1, 2)  # [1, 24, 64]
+        txt2 = self.text_module1(txt3.transpose(1, 2)).transpose(1, 2)  # [1, 24, 32]
+        txt1 = self.text_module0(txt2.transpose(1, 2)).transpose(1, 2)  # [1, 24, 16]
         print("txt1", txt1.shape)
 
-        enc1 = self.encoder1(x)  #[1, 16, 32, 320, 256] #???暂且把这个16当作channel，然后在这个维度上融合好了
+        enc1 = self.encoder1(x)  # [1, 16, 32, 320, 256] # batchsize，channel，depth，height，width
         enc2 = self.encoder2(self.pool1(enc1))  # [1, 32, 16, 160, 128]
         enc3 = self.encoder3(self.pool2(enc2))  # [1, 64, 8, 80, 64]
         enc4 = self.encoder4(self.pool3(enc3))  # [1, 128, 4, 40, 32]
+        print("fuse前")
 
         #这里文本和图像开始融合，到时候再一起送入decoder中
         fus1 = self.fusion1(enc1, txt1)
@@ -84,6 +86,8 @@ class UNet3d(nn.Module):
         print("fus3",fus3.shape)
         fus4 = self.fusion4(enc4, txt4)
         print("fus4",fus4.shape)
+
+        print("fuse后")
 
 
         bottleneck = self.bottleneck(self.pool4(enc4))
