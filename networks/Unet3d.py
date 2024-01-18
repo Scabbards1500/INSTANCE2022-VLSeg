@@ -2,7 +2,7 @@ import torch.nn as nn
 from collections import OrderedDict
 import torch
 from .BioBert import BERTModel
-from .Blocks import FusLanguageVision
+from .Blocks import FusLanguageVision,FusionBlock
 
 
 
@@ -18,11 +18,11 @@ class UNet3d(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         # self.text_size = text_size
-        self.text_module4 = nn.Conv1d(in_channels=768, out_channels=256, kernel_size=3, padding=1)
-        self.text_module3 = nn.Conv1d(in_channels=256, out_channels=128, kernel_size=3, padding=1)
-        self.text_module2 = nn.Conv1d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
-        self.text_module1 = nn.Conv1d(in_channels=64, out_channels=32, kernel_size=3, padding=1)
-        self.text_module0 = nn.Conv1d(in_channels=32, out_channels=16, kernel_size=3, padding=1)
+        self.text_module4 = nn.Conv1d(in_channels=768, out_channels=512, kernel_size=3, padding=1)
+        self.text_module3 = nn.Conv1d(in_channels=512, out_channels=256, kernel_size=3, padding=1)
+        self.text_module2 = nn.Conv1d(in_channels=256, out_channels=128, kernel_size=3, padding=1)
+        self.text_module1 = nn.Conv1d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
+        self.text_module0 = nn.Conv1d(in_channels=64, out_channels=32, kernel_size=3, padding=1)
 
         self.encoder1 = UNet3d._block(self.in_channels, self.features, name="enc1")
         self.pool1 = nn.MaxPool3d(kernel_size=2, stride=2)
@@ -33,10 +33,10 @@ class UNet3d(nn.Module):
         self.encoder4 = UNet3d._block(self.features * 4, self.features * 8, name="enc4")
         self.pool4 = nn.MaxPool3d(kernel_size=2, stride=2)
 
-        self.fusion1 = FusLanguageVision(self.features, self.features, 24, self.features)
-        self.fusion2 = FusLanguageVision(self.features * 2, self.features * 2,24,self.features * 2)
-        self.fusion3 = FusLanguageVision(self.features * 4, self.features * 4,24,self.features * 4)
-        self.fusion4 = FusLanguageVision(self.features * 8, self.features * 8, 24,self.features * 8)
+        self.fusion1 = FusionBlock(self.features *32, self.features*32, 24, self.features)
+        self.fusion2 = FusionBlock(self.features * 32, self.features * 32,24,self.features * 2)
+        self.fusion3 = FusionBlock(self.features * 32, self.features * 32,24,self.features * 4)
+        self.fusion4 = FusionBlock(self.features * 32, self.features * 32, 24,self.features * 8)
 
 
         self.bottleneck = UNet3d._block(self.features * 8, self.features * 16, name="bottleneck")
@@ -54,58 +54,48 @@ class UNet3d(nn.Module):
 
 
     def forward(self, x, text):
-        # 从此x是图片，t是文本
-        # tmp = x
-        # t = tmp[1]
-        # x = tmp[0]
-        print("x")
-        print(x.shape)
 
         text_output = self.text_encoder(text['input_ids'], text['attention_mask'])
         text_embeds, text_project = text_output['feature'], text_output['project']  # [1, 24, 768], [1,256]
 
-        txt_pre = self.text_module4(text_embeds[-1].transpose(1, 2)).transpose(1, 2)  # [1, 24, 256] 其中1是batch_size，24是句子长度，512是词向量维度
-        txt4 = self.text_module3(txt_pre.transpose(1, 2)).transpose(1, 2)  # [1, 24, 128]
-        txt3 = self.text_module2(txt4.transpose(1, 2)).transpose(1, 2)  # [1, 24, 64]
-        txt2 = self.text_module1(txt3.transpose(1, 2)).transpose(1, 2)  # [1, 24, 32]
-        txt1 = self.text_module0(txt2.transpose(1, 2)).transpose(1, 2)  # [1, 24, 16]
-        print("txt1", txt1.shape)
+        txt_pre = self.text_module4(text_embeds[-1].transpose(1, 2)).transpose(1, 2)  # [1, 24, 512] 其中1是batch_size，24是句子长度，512是词向量维度
+        txt4 = self.text_module3(txt_pre.transpose(1, 2)).transpose(1, 2)  # [1, 24, 256]
+        txt3 = self.text_module2(txt4.transpose(1, 2)).transpose(1, 2)  # [1, 24, 128]
+        txt2 = self.text_module1(txt3.transpose(1, 2)).transpose(1, 2)  # [1, 24, 64]
+        txt1 = self.text_module0(txt2.transpose(1, 2)).transpose(1, 2)  # [1, 24, 32]
+
 
         enc1 = self.encoder1(x)  # [1, 16, 32, 320, 256] # batchsize，channel，depth，height，width
         enc2 = self.encoder2(self.pool1(enc1))  # [1, 32, 16, 160, 128]
         enc3 = self.encoder3(self.pool2(enc2))  # [1, 64, 8, 80, 64]
         enc4 = self.encoder4(self.pool3(enc3))  # [1, 128, 4, 40, 32]
-        print("fuse前")
+
 
         #这里文本和图像开始融合，到时候再一起送入decoder中
-        fus1 = self.fusion1(enc1, txt1)
-        print("fus1", fus1.shape)
-        fus2 = self.fusion2(enc2, txt2)
-        print("fus2",fus2.shape)
-        fus3 = self.fusion3(enc3, txt3)
-        print("fus3",fus3.shape)
-        fus4 = self.fusion4(enc4, txt4)
-        print("fus4",fus4.shape)
 
-        print("fuse后")
+        fus1 = self.fusion1(enc1, txt1)
+        fus2 = self.fusion2(enc2, txt2)
+        fus3 = self.fusion3(enc3, txt3)
+        fus4 = self.fusion4(enc4, txt4)
+
 
 
         bottleneck = self.bottleneck(self.pool4(enc4))
 
         dec4 = self.upconv4(bottleneck) #[1, 128, 4, 40, 32]
-        dec4 = torch.cat((dec4, enc4), dim=1)# 通道拼接 [1, 256, 4, 40, 32]
+        dec4 = torch.cat((dec4, fus4), dim=1)# 通道拼接 [1, 256, 4, 40, 32]
         dec4 = self.decoder4(dec4) # [1, 128, 4, 40, 32]
 
         dec3 = self.upconv3(dec4) # [1, 64, 8, 80, 64]
-        dec3 = torch.cat((dec3, enc3), dim=1)# 通道拼接 [1, 128, 8, 80, 64]
+        dec3 = torch.cat((dec3, fus3), dim=1)# 通道拼接 [1, 128, 8, 80, 64]
         dec3 = self.decoder3(dec3) # [1, 64, 8, 80, 64]
 
         dec2 = self.upconv2(dec3) # [1, 32, 16, 160, 128]
-        dec2 = torch.cat((dec2, enc2), dim=1)# 通道拼接，这里塞入文本信息
+        dec2 = torch.cat((dec2, fus2), dim=1)# 通道拼接，这里塞入文本信息
         dec2 = self.decoder2(dec2)
 
         dec1 = self.upconv1(dec2) # [1, 16, 32, 320, 256]
-        dec1 = torch.cat((dec1, enc1), dim=1)  # 通道拼接 [1, 32, 32, 320, 256]
+        dec1 = torch.cat((dec1, fus1), dim=1)  # 通道拼接 [1, 32, 32, 320, 256]
         dec1 = self.decoder1(dec1) # [1, 16, 32, 320, 256]
         out_logit = self.conv(dec1)
 

@@ -3,41 +3,41 @@ from collections import OrderedDict
 import torch
 
 
-class UNet3d(nn.Module):
+class UNet3d_ori(nn.Module):
     """
     Unet3d implement
     """
 
     def __init__(self, in_channels, out_channels, init_features=16):
-        super(UNet3d, self).__init__()
+        super(UNet3d_ori, self).__init__()
         self.features = init_features
         self.in_channels = in_channels
         self.out_channels = out_channels
 
-        self.encoder1 = UNet3d._block(self.in_channels, self.features, name="enc1")
+        self.encoder1 = UNet3d_ori._block(self.in_channels, self.features, name="enc1")
         self.pool1 = nn.MaxPool3d(kernel_size=2, stride=2)
-        self.encoder2 = UNet3d._block(self.features, self.features * 2, name="enc2")
+        self.encoder2 = UNet3d_ori._block(self.features, self.features * 2, name="enc2")
         self.pool2 = nn.MaxPool3d(kernel_size=2, stride=2)
-        self.encoder3 = UNet3d._block(self.features * 2, self.features * 4, name="enc3")
+        self.encoder3 = UNet3d_ori._block(self.features * 2, self.features * 4, name="enc3")
         self.pool3 = nn.MaxPool3d(kernel_size=2, stride=2)
-        self.encoder4 = UNet3d._block(self.features * 4, self.features * 8, name="enc4")
+        self.encoder4 = UNet3d_ori._block(self.features * 4, self.features * 8, name="enc4")
         self.pool4 = nn.MaxPool3d(kernel_size=2, stride=2)
-        self.bottleneck = UNet3d._block(self.features * 8, self.features * 16, name="bottleneck")
+        self.bottleneck = UNet3d_ori._block(self.features * 8, self.features * 16, name="bottleneck")
         self.upconv4 = nn.ConvTranspose3d(self.features * 16, self.features * 8, kernel_size=2, stride=2)
-        self.decoder4 = UNet3d._block((self.features * 8) * 2, self.features * 8, name="dec4")
+        self.decoder4 = UNet3d_ori._block((self.features * 8) * 2, self.features * 8, name="dec4")
         self.upconv3 = nn.ConvTranspose3d(self.features * 8, self.features * 4, kernel_size=2, stride=2)
-        self.decoder3 = UNet3d._block((self.features * 4) * 2, self.features * 4, name="dec3")
+        self.decoder3 = UNet3d_ori._block((self.features * 4) * 2, self.features * 4, name="dec3")
         self.upconv2 = nn.ConvTranspose3d(self.features * 4, self.features * 2, kernel_size=2, stride=2)
-        self.decoder2 = UNet3d._block((self.features * 2) * 2, self.features * 2, name="dec2")
+        self.decoder2 = UNet3d_ori._block((self.features * 2) * 2, self.features * 2, name="dec2")
         self.upconv1 = nn.ConvTranspose3d(self.features * 2, self.features, kernel_size=2, stride=2)
-        self.decoder1 = UNet3d._block(self.features * 2, self.features, name="dec1")
+        self.decoder1 = UNet3d_ori._block(self.features * 2, self.features, name="dec1")
         self.conv = nn.Conv3d(in_channels=self.features, out_channels=self.out_channels, kernel_size=1)
 
     def forward(self, x):
-        enc1 = self.encoder1(x)
-        enc2 = self.encoder2(self.pool1(enc1))
-        enc3 = self.encoder3(self.pool2(enc2))
-        enc4 = self.encoder4(self.pool3(enc3))
+        enc1 = self.encoder1(x) # [2,16,32,320,256]
+        enc2 = self.encoder2(self.pool1(enc1)) # [2,32,16,160,128]
+        enc3 = self.encoder3(self.pool2(enc2)) # [2,64,8,80,64]
+        enc4 = self.encoder4(self.pool3(enc3)) # [2,128,4,40,32]
 
         bottleneck = self.bottleneck(self.pool4(enc4))
 

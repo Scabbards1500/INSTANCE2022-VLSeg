@@ -4,6 +4,7 @@ import os
 from model import *
 import numpy as np
 
+from model.modelUnet import BinaryUNet3dModel_ori
 
 # Use CUDA
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
@@ -45,6 +46,8 @@ def trainbinaryunet3d():
                         epochs=200, showwind=[4, 8])
 
 
+
+
 # def trainbinaryVnet3d():
 #     # Read  data set (Train data from CSV file)
 #     csvdata = pd.read_csv('dataprocess\\data\\traindata.csv')
@@ -76,7 +79,36 @@ def trainbinaryunet3d():
 #                         bert_dir= r'D:\model\biobert_base_cased_v1_2',
 #                         epochs=200, showwind=[4, 8])
 
+def trainbinaryunet3d_ori():
+    # Read  data set (Train data from CSV file)
+    csvdata = pd.read_csv('dataprocess\\data\\traindata.csv')
+    maskdatasource = csvdata.iloc[:, 1].values
+    imagedatasource = csvdata.iloc[:, 0].values
+    csvdataaug = pd.read_csv('dataprocess\\data\\trainaugdata.csv')
+    maskdataaug = csvdataaug.iloc[:, 1].values
+    imagedataaug = csvdataaug.iloc[:, 0].values
+    imagedata = np.concatenate((imagedatasource, imagedataaug), axis=0)
+    maskdata = np.concatenate((maskdatasource, maskdataaug), axis=0)
+    # 文本部分！
+
+    # 这里就先不打乱了,放进dataloader里面一起打乱
+    trainimages = imagedata
+    trainlabels = maskdata
+
+    data_dir2 = 'dataprocess\data\\validata.csv'
+    csv_data2 = pd.read_csv(data_dir2)
+    valimages = csv_data2.iloc[:, 0].values
+    vallabels = csv_data2.iloc[:, 1].values
+
+    unet3d = BinaryUNet3dModel_ori(image_depth=32, image_height=320, image_width=256, image_channel=1, numclass=1,
+                               batch_size=1, loss_name='BinaryDiceLoss')
+    unet3d.trainprocess(trainimages, trainlabels, valimages, vallabels, model_dir='log/instance/dice/Unet',
+                        epochs=200, showwind=[4, 8])
+
+
 
 if __name__ == '__main__':
+
     trainbinaryunet3d()
+    # trainbinaryunet3d_ori()
     # trainbinaryVnet3d()
