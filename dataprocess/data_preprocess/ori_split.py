@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import shutil
 
 # 设置路径
-data_dir = r'D:\tempdataset\50data\train'
+data_dir = r'D:\tempdataset\INSTANCE2022_2'
 image_dir = os.path.join(data_dir, 'data')
 label_dir = os.path.join(data_dir, 'label')
 output_dir = r'D:\python\INSTANCE2022-INtracranial-hemorrhage-SegmenTAtioN-ChallengE-main\dataset'

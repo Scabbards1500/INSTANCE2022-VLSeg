@@ -45,6 +45,8 @@ class INSTANCE2022(Dataset):
 
         image,label,token,mask = data['image'],data['gt'],data['token'],data['mask']
         text = {'input_ids':token.squeeze(dim=0), 'attention_mask':mask.squeeze(dim=0)}
+        print("2aasdasdasdasd")
+        print(text)
 
         return ([image, text], label)
 

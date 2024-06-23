@@ -156,13 +156,20 @@ class BinaryUNet2dModel(object):
             with torch.no_grad():
                 # loop over the validation set
                 for batch in val_loader:
-                    # x should tensor with shape (N,C,W,H)
-                    x = batch['image']
-                    # y should tensor with shape (N,C,W,H)
+                    x = batch['data'][0]
+                    t = batch['data'][1]
+                    t_inputid = batch['data'][1]['input_ids']
+                    t_attention_mask = batch['data'][1]['attention_mask']
+                    # y should tensor with shape (N,C,D,W,H),
+                    # if have mutil label y should one-hot,if only one label,the C is one
                     y = batch['label']
                     y[y != 0] = 1
                     # send the input to the device
-                    (x, y) = (x.to(self.device), y.to(self.device))
+
+                    x, y = x.to(self.device), y.to(self.device)
+                    ti = t_inputid.to(self.device)  # [1, 24]
+                    tam = t_attention_mask.to(self.device)  # [1, 24]
+                    t = {'input_ids': ti, 'attention_mask': tam}
                     # make the predictions and calculate the validation loss
                     pred_logit, pred = self.model(x)
                     loss = lossFunc(pred_logit, y)
@@ -376,12 +383,20 @@ class MutilUNet2dModel(object):
             with torch.no_grad():
                 # loop over the validation set
                 for batch in val_loader:
-                    # x should tensor with shape (N,C,W,H)
-                    x = batch['image']
-                    # y should tensor with shape (N,C,W,H)
+                    x = batch['data'][0]
+                    t = batch['data'][1]
+                    t_inputid = batch['data'][1]['input_ids']
+                    t_attention_mask = batch['data'][1]['attention_mask']
+                    # y should tensor with shape (N,C,D,W,H),
+                    # if have mutil label y should one-hot,if only one label,the C is one
                     y = batch['label']
+                    y[y != 0] = 1
                     # send the input to the device
-                    (x, y) = (x.to(self.device), y.to(self.device))
+
+                    x, y = x.to(self.device), y.to(self.device)
+                    ti = t_inputid.to(self.device)  # [1, 24]
+                    tam = t_attention_mask.to(self.device)  # [1, 24]
+                    t = {'input_ids': ti, 'attention_mask': tam}
                     # make the predictions and calculate the validation loss
                     pred_logit, pred = self.model(x)
                     loss = lossFunc(pred_logit, y)
@@ -491,7 +506,7 @@ class BinaryUNet3dModel(object):
         self.use_cuda = use_cuda
         self.device = torch.device('cuda' if self.use_cuda else 'cpu')
 
-        self.model = UNet3d(self.image_channel, self.numclass, bert_type=bert_type )
+        self.model = UNet3d(self.image_channel, self.numclass, self.bert_type)
         # self.model = fusion_net()
         self.model.to(device=self.device)
 
@@ -618,14 +633,22 @@ class BinaryUNet3dModel(object):
                 # loop over the validation set
                 for batch in val_loader:
                     # x should tensor with shape (N,C,W,H)
-                    x = batch['data']
+                    x = batch['data'][0]
+                    t = batch['data'][1]
+                    t_inputid = batch['data'][1]['input_ids']
+                    t_attention_mask = batch['data'][1]['attention_mask']
                     # y should tensor with shape (N,C,W,H)
                     y = batch['label']
                     y[y != 0] = 1
                     # send the input to the device
-                    (x, y) = (x.to(self.device), y.to(self.device))
+                    x, y = x.to(self.device), y.to(self.device)
+                    ti = t_inputid.to(self.device)  # [1, 24]
+                    tam = t_attention_mask.to(self.device)  # [1, 24]
+                    t = {'input_ids': ti, 'attention_mask': tam}
+                    print(t)
+
                     # make the predictions and calculate the validation loss
-                    pred_logit, pred = self.model(x)
+                    pred_logit, pred = self.model(x,t)
                     loss = lossFunc(pred_logit, y)
                     accu = self._accuracy_function(self.accuracyname, pred, y)
                     # save_images
@@ -887,16 +910,22 @@ class BinaryUNet3dModel_ori(object):
             trainshow = True
             # 4.3、loop over the training set
             for batch in train_loader:
-                # x should tensor with shape (N,C,D,W,H)
-                x = batch['image']
+                x = batch['data'][0]
+                t = batch['data'][1]
+                t_inputid = batch['data'][1]['input_ids']
+                t_attention_mask = batch['data'][1]['attention_mask']
                 # y should tensor with shape (N,C,D,W,H),
                 # if have mutil label y should one-hot,if only one label,the C is one
                 y = batch['label']
                 y[y != 0] = 1
                 # send the input to the device
-                x, y = x.to(self.device), y.to(self.device)
+
+                x, y  = x.to(self.device), y.to(self.device)
+                ti = t_inputid.to(self.device) # [1, 24]
+                tam = t_attention_mask.to(self.device) # [1, 24]
+                t = {'input_ids': ti, 'attention_mask': tam}
                 # perform a forward pass and calculate the training loss and accu
-                pred_logit, pred = self.model(x)
+                pred_logit, pred = self.model(x,t)
                 loss = lossFunc(pred_logit, y)
                 accu = self._accuracy_function(self.accuracyname, pred, y)
                 # save_images
@@ -922,13 +951,20 @@ class BinaryUNet3dModel_ori(object):
             with torch.no_grad():
                 # loop over the validation set
                 for batch in val_loader:
-                    # x should tensor with shape (N,C,W,H)
-                    x = batch['image']
-                    # y should tensor with shape (N,C,W,H)
+                    x = batch['data'][0]
+                    t = batch['data'][1]
+                    t_inputid = batch['data'][1]['input_ids']
+                    t_attention_mask = batch['data'][1]['attention_mask']
+                    # y should tensor with shape (N,C,D,W,H),
+                    # if have mutil label y should one-hot,if only one label,the C is one
                     y = batch['label']
                     y[y != 0] = 1
                     # send the input to the device
-                    (x, y) = (x.to(self.device), y.to(self.device))
+
+                    x, y = x.to(self.device), y.to(self.device)
+                    ti = t_inputid.to(self.device)  # [1, 24]
+                    tam = t_attention_mask.to(self.device)  # [1, 24]
+                    t = {'input_ids': ti, 'attention_mask': tam}
                     # make the predictions and calculate the validation loss
                     pred_logit, pred = self.model(x)
                     loss = lossFunc(pred_logit, y)
@@ -1220,12 +1256,20 @@ class MutilUNet3dModel(object):
             with torch.no_grad():
                 # loop over the validation set
                 for batch in val_loader:
-                    # x should tensor with shape (N,C,W,H)
-                    x = batch['image']
-                    # y should tensor with shape (N,C,W,H)
+                    x = batch['data'][0]
+                    t = batch['data'][1]
+                    t_inputid = batch['data'][1]['input_ids']
+                    t_attention_mask = batch['data'][1]['attention_mask']
+                    # y should tensor with shape (N,C,D,W,H),
+                    # if have mutil label y should one-hot,if only one label,the C is one
                     y = batch['label']
+                    y[y != 0] = 1
                     # send the input to the device
-                    (x, y) = (x.to(self.device), y.to(self.device))
+
+                    x, y = x.to(self.device), y.to(self.device)
+                    ti = t_inputid.to(self.device)  # [1, 24]
+                    tam = t_attention_mask.to(self.device)  # [1, 24]
+                    t = {'input_ids': ti, 'attention_mask': tam}
                     # make the predictions and calculate the validation loss
                     pred_logit, pred = self.model(x)
                     loss = lossFunc(pred_logit, y)

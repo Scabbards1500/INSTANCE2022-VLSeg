@@ -65,7 +65,7 @@ class UNet3d(nn.Module):
         txt1 = self.text_module0(txt2.transpose(1, 2)).transpose(1, 2)  # [1, 24, 32]
 
 
-        enc1 = self.encoder1(x)  # [1, 16, 32, 320, 256] # batchsize，channel，depth，height，width
+        enc1 = self.encoder1(x)  # [1, 16, 32, 320, 256]  # batchsize，channel，depth，height，width
         enc2 = self.encoder2(self.pool1(enc1))  # [1, 32, 16, 160, 128]
         enc3 = self.encoder3(self.pool2(enc2))  # [1, 64, 8, 80, 64]
         enc4 = self.encoder4(self.pool3(enc3))  # [1, 128, 4, 40, 32]
